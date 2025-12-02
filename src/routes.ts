@@ -1,5 +1,5 @@
 import { Router, Request, Response } from "express";
-import auth from "./routes/auth";
+import { AuthController } from "./controllers";
 
 const router = Router();
 
@@ -7,7 +7,9 @@ router.get("/", (req: Request, res: Response) => {
   res.json({ message: "Gym API is online !" });
 });
 
-router.use("/auth", auth);
+const authController = new AuthController();
+
+router.use("/auth", authController.buildRouter());
 
 router.get("/users", (req: Request, res: Response) => {
   res.json({ message: "Liste des utilisateurs" });
