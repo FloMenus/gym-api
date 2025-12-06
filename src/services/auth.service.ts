@@ -1,8 +1,9 @@
-import { PrismaClient } from "@prisma/client";
+import { PrismaClient, UserRole } from "@prisma/client";
 import { prisma } from "../utils/prisma";
-import { loginType, registerType } from "../schemas";
+import { loginType, promoteType, registerType } from "../schemas";
 import bcrypt from "bcrypt";
 import jwt from "jsonwebtoken";
+import { success } from "zod";
 
 export class AuthService {
   db: PrismaClient;
@@ -113,5 +114,42 @@ export class AuthService {
       success: true,
       message: "Utilisateur créé avec succès.",
     };
+  }
+
+  async promoteToAdmin(data: promoteType) {
+
+    const userExist = await prisma.user.findUnique({
+      where: {
+        email: data.email,
+      },
+    });
+
+    if (!userExist) {
+      return {
+        success: false,
+        message: "Utilisateur introuvable.",
+      };
+    }
+
+    if (userExist.role === UserRole.ADMIN) {
+      return {
+        success: false,
+        message: "L'utilisateur est déjà un administrateur.",
+      };
+    }
+
+    await prisma.user.update({
+      where: {
+        email: data.email,
+      },
+      data: {
+        role: UserRole.ADMIN,
+      },
+    })
+
+    return {
+      success: true,
+      message: "Utilisateur promu au rôle d'administrateur avec succès.",
+    }
   }
 }
