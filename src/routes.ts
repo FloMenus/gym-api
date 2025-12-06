@@ -1,5 +1,5 @@
 import { Router, Request, Response } from "express";
-import { AuthController } from "./controllers";
+import { AuthController, ExerciseTypeController } from "./controllers";
 
 const router = Router();
 
@@ -11,8 +11,8 @@ const authController = new AuthController();
 
 router.use("/auth", authController.buildRouter());
 
-router.get("/users", (req: Request, res: Response) => {
-  res.json({ message: "Liste des utilisateurs" });
-});
+const exerciseTypeController = new ExerciseTypeController();
+
+router.use("/exerciseType", exerciseTypeController.buildRouter());
 
 export default router;
