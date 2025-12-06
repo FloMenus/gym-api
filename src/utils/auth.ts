@@ -1,80 +1,48 @@
+import { UserRole } from "@prisma/client";
 import { NextFunction, Request, Response } from "express";
 import jwt from "jsonwebtoken";
-import { UserRole } from "@prisma/client";
 
-export const auth = (req: Request, res: Response, next: NextFunction) => {
-  const header = req.headers["authorization"];
-  if (!header || !header.startsWith("Bearer ")) {
-    return res.status(401).json({ message: "Vous n'êtes pas connecté." });
+interface AuthPayload extends jwt.JwtPayload {
+  userId: string;
+  role: UserRole;
+}
+
+const verifyAuth = (token: string): AuthPayload | null => {
+  try {
+    const payload = jwt.verify(token, process.env.JWT_SECRET!) as AuthPayload;
+    if (!payload.userId || !payload.role) return null;
+    return payload;
+  } catch {
+    return null;
   }
+};
+
+const getAuthPayload = (req: Request): jwt.JwtPayload | null => {
+  const header = req.headers["authorization"];
+  if (!header?.startsWith("Bearer ")) return null;
 
   const token = header.split(" ")[1];
+  return verifyAuth(token);
+};
 
-  if (!process.env.JWT_SECRET) {
-    throw new Error("JWT_SECRET is missing");
-  }
+export const auth = (req: Request, res: Response, next: NextFunction) => {
+  const payload = getAuthPayload(req);
+  if (!payload)
+    return res.status(401).json({ message: "Vous n'êtes pas connecté." });
 
-  jwt.verify(token, process.env.JWT_SECRET, (err, payload) => {
-    if (err) {
-      return res.status(403).json({ message: "Vous n'êtes pas connecté." });
-    }
-
-    if (
-      typeof payload === "object" &&
-      payload !== null &&
-      "userId" in payload &&
-      "role" in payload
-    ) {
-      req.user = {
-        userId: (payload as any).userId,
-        role: (payload as any).role,
-      };
-      next();
-    } else {
-      return res.status(403).json({ message: "Token invalide." });
-    }
-  });
+  req.user = { userId: payload.userId, role: payload.role as UserRole };
+  next();
 };
 
 export const authAdmin = (req: Request, res: Response, next: NextFunction) => {
-  const header = req.headers["authorization"];
-  if (!header || !header.startsWith("Bearer ")) {
+  const payload = getAuthPayload(req);
+  if (!payload)
     return res.status(401).json({ message: "Vous n'êtes pas connecté." });
+
+  if (payload.role !== UserRole.ADMIN) {
+    return res.status(403).json({ message: "Vous n'avez pas les droits." });
   }
 
-  const token = header.split(" ")[1];
-
-  if (!process.env.JWT_SECRET) {
-    throw new Error("JWT_SECRET is missing");
-  }
-
-  jwt.verify(token, process.env.JWT_SECRET, (err, payload) => {
-    if (err) {
-      return res.status(403).json({ message: "Vous n'êtes pas connecté." });
-    }
-
-    if (
-      typeof payload === "object" &&
-      payload !== null &&
-      "userId" in payload &&
-      "role" in payload && (payload as any).role !== UserRole.ADMIN
-    ) {
-      return res.status(403).json({ message: "Accès refusé." });
-    }
-
-    if (
-      typeof payload === "object" &&
-      payload !== null &&
-      "userId" in payload &&
-      "role" in payload
-    ) {
-      req.user = {
-        userId: (payload as any).userId,
-        role: (payload as any).role,
-      };
-      next();
-    } else {
-      return res.status(403).json({ message: "Token invalide." });
-    }
-  });
+  req.user = { userId: payload.userId, role: payload.role as UserRole };
+  next();
 };
