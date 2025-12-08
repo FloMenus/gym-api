@@ -17,6 +17,6 @@ router.use("/exerciseType", exerciseTypeController.buildRouter());
 
 const gymRequestController = new GymRequestController();
 
-router.use("/gymRequest", gymRequestController.buildRouter());
+router.use("/gym-request", gymRequestController.buildRouter());
 
 export default router;
