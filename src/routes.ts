@@ -1,5 +1,5 @@
 import { Router, Request, Response } from "express";
-import { AuthController, ExerciseTypeController } from "./controllers";
+import { AuthController, ExerciseTypeController, GymController } from "./controllers";
 
 const router = Router();
 
@@ -14,5 +14,9 @@ router.use("/auth", authController.buildRouter());
 const exerciseTypeController = new ExerciseTypeController();
 
 router.use("/exerciseType", exerciseTypeController.buildRouter());
+
+const gymController = new GymController();
+
+router.use("/gym", gymController.buildRouter());
 
 export default router;
