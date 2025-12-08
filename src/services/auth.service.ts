@@ -78,7 +78,7 @@ export class AuthService {
 
     return {
       success: true,
-      message: "Utilisateur créé avec succès.",
+      message: "Connexion établie avec succès.",
       token,
     };
   }
