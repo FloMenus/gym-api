@@ -1,6 +1,5 @@
 import { Router, Request, Response } from "express";
-import { AuthController, ExerciseTypeController, GymRequestController, EquipmentController } from "./controllers";
-
+import { AuthController, ExerciseTypeController, GymController, GymRequestController, EquipmentController } from "./controllers";
 const router = Router();
 
 router.get("/", (req: Request, res: Response) => {
@@ -14,6 +13,10 @@ router.use("/auth", authController.buildRouter());
 const exerciseTypeController = new ExerciseTypeController();
 
 router.use("/exerciseType", exerciseTypeController.buildRouter());
+
+const gymController = new GymController();
+
+router.use("/gym", gymController.buildRouter());
 
 const equipmentController = new EquipmentController();
 
