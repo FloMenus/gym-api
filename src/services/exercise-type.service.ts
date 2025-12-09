@@ -1,6 +1,7 @@
 import { PrismaClient } from "@prisma/client";
 import { prisma } from "../utils/prisma";
 import { exerciseTypeType } from "../schemas";
+import { success } from "zod";
 
 export class ExerciseTypeService {
   db: PrismaClient;
@@ -49,6 +50,17 @@ export class ExerciseTypeService {
   }
 
   async update(id: number, data: exerciseTypeType) {
+    const exerciseTypeExist = await prisma.exerciseType.findFirst({
+      where: { id },
+    });
+
+    if (!exerciseTypeExist) {
+      return {
+        success: false,
+        message: "Type d'exercice introuvable.",
+      };
+    }
+
     const exerciseType = await prisma.exerciseType.update({
       where: { id },
       data,
@@ -62,6 +74,17 @@ export class ExerciseTypeService {
   }
 
   async delete(id: number) {
+    const exerciseTypeExist = await prisma.exerciseType.findFirst({
+      where: { id },
+    });
+
+    if (!exerciseTypeExist) {
+      return {
+        success: false,
+        message: "Type d'exercice introuvable.",
+      };
+    }
+
     await prisma.exerciseType.delete({
       where: { id },
     });
