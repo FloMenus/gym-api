@@ -161,9 +161,12 @@ model GymRequest {
   updatedAt           DateTime          @updatedAt
   status              GymRequestStatus  @default(PENDING)
   name                String
+  description         String
+  capacity            Int
   address             String
-  contact             String
+  phone               String
+  email               String
 
-  userId              Int
-  user                User              @relation(fields: [userId], references: [id])
+  ownerId             Int
+  owner               User              @relation(fields: [ownerId], references: [id])
 }

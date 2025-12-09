@@ -53,7 +53,7 @@ export const authOwner = (req: Request, res: Response, next: NextFunction) => {
     return res.status(401).json({ message: "Vous n'êtes pas connecté." });
 
   if (payload.role !== UserRole.OWNER) {
-    return res.status(403).json({ message: "Seuls les propriétaires peuvent soumettre des demandes de création de salle." });
+    return res.status(403).json({ message: "Vous n'êtes pas propriétaire de salle." });
   }
 
   req.user = { userId: payload.userId, role: payload.role as UserRole };
