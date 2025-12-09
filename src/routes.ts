@@ -1,5 +1,5 @@
 import { Router, Request, Response } from "express";
-import { AuthController, ExerciseTypeController, EquipmentController } from "./controllers";
+import { AuthController, ExerciseTypeController, GymRequestController, EquipmentController } from "./controllers";
 
 const router = Router();
 
@@ -18,5 +18,9 @@ router.use("/exerciseType", exerciseTypeController.buildRouter());
 const equipmentController = new EquipmentController();
 
 router.use("/equipment", equipmentController.buildRouter());
+
+const gymRequestController = new GymRequestController();
+
+router.use("/gym-request", gymRequestController.buildRouter());
 
 export default router;

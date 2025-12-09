@@ -3,7 +3,6 @@ import { prisma } from "../utils/prisma";
 import { loginType, promoteType, registerType } from "../schemas";
 import bcrypt from "bcrypt";
 import jwt from "jsonwebtoken";
-import { success } from "zod";
 
 export class AuthService {
   db: PrismaClient;
@@ -79,7 +78,7 @@ export class AuthService {
 
     return {
       success: true,
-      message: "Utilisateur créé avec succès.",
+      message: "Connexion établie avec succès.",
       token,
     };
   }
@@ -113,6 +112,39 @@ export class AuthService {
     return {
       success: true,
       message: "Utilisateur créé avec succès.",
+    };
+  }
+
+  async registerOwner(data: registerType) {
+    const userExist = await prisma.user.count({
+      where: {
+        email: {
+          equals: data.email,
+        },
+      },
+    });
+
+    if (userExist > 0) {
+      return {
+        success: false,
+        message: "Utilisateur déjà existant.",
+      };
+    }
+
+    const hash = await bcrypt.hash(data.password, 10);
+
+    await prisma.user.create({
+      data: {
+        email: data.email,
+        password: hash,
+        name: data.name,
+        role: UserRole.OWNER,
+      },
+    });
+
+    return {
+      success: true,
+      message: " Le propriétaire a été créé avec succès !",
     };
   }
 

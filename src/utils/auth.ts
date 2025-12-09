@@ -46,3 +46,16 @@ export const authAdmin = (req: Request, res: Response, next: NextFunction) => {
   req.user = { userId: payload.userId, role: payload.role as UserRole };
   next();
 };
+
+export const authOwner = (req: Request, res: Response, next: NextFunction) => {
+  const payload = getAuthPayload(req);
+  if (!payload)
+    return res.status(401).json({ message: "Vous n'êtes pas connecté." });
+
+  if (payload.role !== UserRole.OWNER) {
+    return res.status(403).json({ message: "Seuls les propriétaires peuvent soumettre des demandes de création de salle." });
+  }
+
+  req.user = { userId: payload.userId, role: payload.role as UserRole };
+  next();
+};
