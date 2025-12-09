@@ -50,13 +50,26 @@ model Gym {
   status              GymStatus         @default(PENDING)
   name                String
   description         String
-  capacity            Int
   address             String
   phone               String
   email               String
 
   ownerId             Int
   owner               User              @relation(fields: [ownerId], references: [id])
+  trainingRooms       TrainingRoom[]
+}
+
+model TrainingRoom {
+  id                  Int               @id @default(autoincrement())
+  createdAt           DateTime          @default(now())
+  updatedAt           DateTime          @updatedAt
+  name                String
+  capacity            Int
+
+  gymId               Int
+  gym                 Gym               @relation(fields: [gymId], references: [id])
+  exerciseTypeIds     Int[]
+  exerciseTypes       ExerciseType[]    @relation("TrainingRoomExerciseTypes")
   equipments          Equipment[]
 }
 
@@ -67,8 +80,8 @@ model Equipment {
   name                String
   quantity            Int?
 
-  gymId               Int
-  gym                 Gym               @relation(fields: [gymId], references: [id])
+  trainingRoomId      Int
+  trainingRoom        TrainingRoom      @relation(fields: [trainingRoomId], references: [id])
 }
 
 model ExerciseType {
@@ -77,8 +90,10 @@ model ExerciseType {
   updatedAt           DateTime          @updatedAt
   name                String
   description         String?
+  targetedMuscles     String[]
 
   challenges          Challenge[]
+  trainingRooms       TrainingRoom[]    @relation("TrainingRoomExerciseTypes")
 }
 
 enum ChallengeDifficulty {
@@ -162,7 +177,6 @@ model GymRequest {
   status              GymRequestStatus  @default(PENDING)
   name                String
   description         String
-  capacity            Int
   address             String
   phone               String
   email               String

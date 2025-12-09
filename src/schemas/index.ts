@@ -5,3 +5,4 @@ export * from "./exercise-type.schema";
 export * from "./gym.schema";
 export * from "./equipment.schema";
 export * from "./gym-request.schema";
+export * from "./training-room.schema";

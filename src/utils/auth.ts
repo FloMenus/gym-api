@@ -59,3 +59,16 @@ export const authOwner = (req: Request, res: Response, next: NextFunction) => {
   req.user = { userId: payload.userId, role: payload.role as UserRole };
   next();
 };
+
+export const authOwnerOrAdmin = (req: Request, res: Response, next: NextFunction) => {
+  const payload = getAuthPayload(req);
+  if (!payload)
+    return res.status(401).json({ message: "Vous n'êtes pas connecté." });
+
+  if (payload.role !== UserRole.OWNER && payload.role !== UserRole.ADMIN) {
+    return res.status(403).json({ message: "Vous n'avez pas les droits." });
+  }
+
+  req.user = { userId: payload.userId, role: payload.role as UserRole };
+  next();
+};
