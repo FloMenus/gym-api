@@ -47,7 +47,7 @@ export class GymRequestController {
       return res.status(401).json({ message: "Vous n'êtes pas connecté." });
     }
 
-    const response = await this.service.create(result.data);
+    const response = await this.service.create(result.data, req.user.userId);
 
     if (response.success) {
       return res.json(response);
