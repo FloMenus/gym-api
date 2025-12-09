@@ -1,6 +1,6 @@
-import { PrismaClient } from "@prisma/client";
+import { GymStatus, PrismaClient } from "@prisma/client";
 import { prisma } from "../utils/prisma";
-import { gymRequestType } from "../schemas";
+import { gymRequestType, gymRequestDecisionType } from "../schemas";
 
 export class GymRequestService {
   db: PrismaClient;
@@ -9,34 +9,10 @@ export class GymRequestService {
     this.db = prisma;
   }
 
-  async create(data: gymRequestType, userId: number) {
-    const gymRequest = await prisma.gymRequest.create({
-      data: {
-        ...data,
-        userId,
-      },
-      include: {
-        user: {
-          select: {
-            id: true,
-            name: true,
-            email: true,
-          },
-        },
-      },
-    });
-
-    return {
-      success: true,
-      message: "Demande de création de salle soumise avec succès.",
-      gymRequest,
-    };
-  }
-
   async getAll() {
     const gymRequests = await prisma.gymRequest.findMany({
       include: {
-        user: {
+        owner: {
           select: {
             id: true,
             name: true,
@@ -59,7 +35,7 @@ export class GymRequestService {
     const gymRequest = await prisma.gymRequest.findUnique({
       where: { id },
       include: {
-        user: {
+        owner: {
           select: {
             id: true,
             name: true,
@@ -82,5 +58,54 @@ export class GymRequestService {
     };
   }
 
+  async create(data: gymRequestType, userId: number) {
+    const gymRequest = await prisma.gymRequest.create({
+      data: {
+        ...data,
+        ownerId: userId,
+        status: GymStatus.PENDING,
+      },
+    });
+
+    return {
+      success: true,
+      message: "Demande de création de salle soumise avec succès.",
+      gymRequest,
+    };
+  }
+
+  async submitDecision(data: gymRequestDecisionType, id: number) {
+    const isExstingGymRequest = await prisma.gymRequest.findUnique({
+      where: { id },
+    });
+    if (!isExstingGymRequest) {
+      return {
+        success: false,
+        message: "Demande de création de salle introuvable.",
+      };
+    }
+
+    /* If approved, create a new gym */
+    if (data.status === GymStatus.APPROVED) {
+      await prisma.gym.create({
+        data: {
+          ...data,
+          ownerId: isExstingGymRequest.ownerId,
+        },
+      })
+    }
+
+    /* Update the gym request */
+    const gymRequest = await prisma.gymRequest.update({
+      where: { id },
+      data
+    });
+
+    return {
+      success: true,
+      message: "Décision soumise avec succès.",
+      gymRequest,
+    };
+  }
 }
 
