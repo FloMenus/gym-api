@@ -52,6 +52,22 @@ export class AuthController {
     }
   }
 
+  async registerOwner(req: Request, res: Response) {
+    const result = registerSchema.safeParse(req.body);
+
+    if (!result.success) {
+      return res.status(400).json({ errors: result.error });
+    }
+
+    const response = await this.service.registerOwner(result.data);
+
+    if (response.success) {
+      return res.json(response);
+    } else {
+      return res.status(400).json(response);
+    }
+  }
+
   async promoteToAdmin(req: Request, res: Response) {
     const result = promoteSchema.safeParse(req.body);
 
@@ -73,6 +89,7 @@ export class AuthController {
     router.get("/", auth, this.profile.bind(this));
     router.post("/login", this.login.bind(this));
     router.post("/register", this.register.bind(this));
+    router.post("/register-owner", this.registerOwner.bind(this));
     router.post("/promote", authAdmin, this.promoteToAdmin.bind(this));
     return router;
   }

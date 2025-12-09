@@ -1,6 +1,5 @@
 import { Router, Request, Response } from "express";
-import { AuthController, ExerciseTypeController, GymController } from "./controllers";
-
+import { AuthController, ExerciseTypeController, GymController, GymRequestController, EquipmentController } from "./controllers";
 const router = Router();
 
 router.get("/", (req: Request, res: Response) => {
@@ -18,5 +17,13 @@ router.use("/exerciseType", exerciseTypeController.buildRouter());
 const gymController = new GymController();
 
 router.use("/gym", gymController.buildRouter());
+
+const equipmentController = new EquipmentController();
+
+router.use("/equipment", equipmentController.buildRouter());
+
+const gymRequestController = new GymRequestController();
+
+router.use("/gym-request", gymRequestController.buildRouter());
 
 export default router;
