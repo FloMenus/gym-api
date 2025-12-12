@@ -12,7 +12,7 @@ export class EquipmentController {
         this.service = new EquipmentService();
     }
 
-    async getAllFromGym(req: Request, res: Response) {
+/*     async getAllFromGym(req: Request, res: Response) {
         const id = Number(req.params.id);
 
         if (isNaN(id)) {
@@ -26,7 +26,7 @@ export class EquipmentController {
         } else {
             return res.status(400).json(response);
         }
-    }
+    } */
     
     async get(req: Request, res: Response) {
         const id = Number(req.params.id);
@@ -99,7 +99,7 @@ export class EquipmentController {
 
     buildRouter(): Router {
         const router = Router();
-        router.get("/all-from-gym/:id", this.getAllFromGym.bind(this));
+        /* router.get("/all-from-gym/:id", this.getAllFromGym.bind(this)); */
         router.get("/:id", this.get.bind(this));
         router.post("/", authAdmin, this.create.bind(this));
         router.put("/:id", authAdmin, this.update.bind(this));

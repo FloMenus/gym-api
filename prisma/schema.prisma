@@ -43,6 +43,21 @@ enum GymRequestStatus {
   REJECTED
 }
 
+model GymRequest {
+  id                  Int               @id @default(autoincrement())
+  createdAt           DateTime          @default(now())
+  updatedAt           DateTime          @updatedAt
+  status              GymRequestStatus  @default(PENDING)
+  name                String
+  description         String
+  address             String
+  phone               String
+  email               String
+
+  ownerId             Int
+  owner               User              @relation(fields: [ownerId], references: [id])
+}
+
 model Gym {
   id                  Int               @id @default(autoincrement())
   createdAt           DateTime          @default(now())
@@ -57,6 +72,7 @@ model Gym {
   ownerId             Int
   owner               User              @relation(fields: [ownerId], references: [id])
   trainingRooms       TrainingRoom[]
+  challenges          Challenge[]
 }
 
 model TrainingRoom {
@@ -92,8 +108,9 @@ model ExerciseType {
   description         String?
   targetedMuscles     String[]
 
-  challenges          Challenge[]
+  challengeExercises  ChallengeExercise[]
   trainingRooms       TrainingRoom[]    @relation("TrainingRoomExerciseTypes")
+  records             ExerciseRecord[]
 }
 
 enum ChallengeDifficulty {
@@ -113,8 +130,10 @@ model Challenge {
 
   creatorId           Int
   creator             User              @relation(fields: [creatorId], references: [id])
-  exerciseTypes       ExerciseType[]
+  exercises           ChallengeExercise[]
   participations      ChallengeParticipation[]
+  gymId               Int?
+  gym                 Gym?              @relation(fields: [gymId], references: [id])
 }
 
 model ChallengeParticipation {
@@ -123,14 +142,30 @@ model ChallengeParticipation {
   updatedAt           DateTime          @updatedAt
   startedAt           DateTime          @default(now())
   completedAt         DateTime?
-  caloriesBurned      Int?  
-  progress            Int? 
+  caloriesBurned      Int?
+  progress            Int?
 
   userId              Int
   user                User              @relation(fields: [userId], references: [id])
   challengeId         Int
   challenge           Challenge         @relation(fields: [challengeId], references: [id])
   sessions            TrainingSession[]
+}
+
+model ChallengeExercise {
+  id                  Int               @id @default(autoincrement())
+  createdAt           DateTime          @default(now())
+  updatedAt           DateTime          @updatedAt
+  targetReps          Int?
+  targetSets          Int?
+  targetWeight        Float?
+  targetDistance      Float?
+  targetDurationSeconds Int?
+
+  challengeId         Int
+  challenge           Challenge         @relation(fields: [challengeId], references: [id])
+  exerciseTypeId      Int
+  exerciseType        ExerciseType      @relation(fields: [exerciseTypeId], references: [id])
 }
 
 model TrainingSession {
@@ -145,6 +180,23 @@ model TrainingSession {
   participation       ChallengeParticipation @relation(fields: [participationId], references: [id])
   userId              Int
   user                User              @relation(fields: [userId], references: [id])
+  records             ExerciseRecord[]
+}
+
+model ExerciseRecord {
+  id                  Int               @id @default(autoincrement())
+  
+  sessionId           Int
+  session             TrainingSession   @relation(fields: [sessionId], references: [id])
+  
+  exerciseTypeId      Int
+  exerciseType        ExerciseType      @relation(fields: [exerciseTypeId], references: [id])
+
+  reps                Int?
+  sets                Int?
+  weight              Float?
+  distance            Float?
+  durationSeconds     Int?
 }
 
 model Badge {
@@ -168,19 +220,4 @@ model UserBadge {
 
   user                User              @relation(fields: [userId], references: [id])
   badge               Badge             @relation(fields: [badgeId], references: [id])
-}
-
-model GymRequest {
-  id                  Int               @id @default(autoincrement())
-  createdAt           DateTime          @default(now())
-  updatedAt           DateTime          @updatedAt
-  status              GymRequestStatus  @default(PENDING)
-  name                String
-  description         String
-  address             String
-  phone               String
-  email               String
-
-  ownerId             Int
-  owner               User              @relation(fields: [ownerId], references: [id])
 }

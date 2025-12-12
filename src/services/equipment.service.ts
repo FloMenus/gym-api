@@ -9,7 +9,7 @@ export class EquipmentService {
         this.db = prisma;
     }
 
-    async getAllFromGym(gymId: number) {
+/*     async getAllFromGym(gymId: number) {
         const isExistingGym = await prisma.gym.findUnique({
             where: { id: gymId },
         });
@@ -29,7 +29,7 @@ export class EquipmentService {
             equipments,
         };
     }
-
+ */
     async get(id: number) {
         const equipment = await prisma.equipment.findUnique({
             where: { id },
@@ -49,13 +49,13 @@ export class EquipmentService {
     }
 
     async create(data: equipmentType) {
-        const isExistingGym = await prisma.gym.findUnique({
-            where: { id: data.gymId },
+        const isExistingTrainingRoom = await prisma.trainingRoom.findUnique({
+            where: { id: data.trainingRoomId },
         });
-        if (!isExistingGym) {
+        if (!isExistingTrainingRoom) {
             return {
                 success: false,
-                message: "Salle de sport introuvable.",
+                message: "Salle d'entraînement introuvable.",
             };
         }
 
