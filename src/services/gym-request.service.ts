@@ -1,4 +1,4 @@
-import { GymStatus, PrismaClient } from "@prisma/client";
+import { GymRequestStatus, PrismaClient } from "@prisma/client";
 import { prisma } from "../utils/prisma";
 import { gymRequestType, gymRequestDecisionType } from "../schemas";
 
@@ -63,7 +63,7 @@ export class GymRequestService {
       data: {
         ...data,
         ownerId: userId,
-        status: GymStatus.PENDING,
+        status: GymRequestStatus.PENDING,
       },
     });
 
@@ -86,7 +86,7 @@ export class GymRequestService {
     }
 
     /* If approved, create a new gym */
-    if (data.status === GymStatus.APPROVED) {
+    if (data.status === GymRequestStatus.APPROVED) {
       await prisma.gym.create({
         data: {
           ...data,

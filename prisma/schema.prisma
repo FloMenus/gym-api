@@ -31,12 +31,6 @@ model User {
   gymRequests         GymRequest[]
 }
 
-enum GymStatus {
-  PENDING
-  APPROVED
-  REJECTED
-}
-
 enum GymRequestStatus {
   PENDING
   APPROVED
@@ -47,12 +41,14 @@ model Gym {
   id                  Int               @id @default(autoincrement())
   createdAt           DateTime          @default(now())
   updatedAt           DateTime          @updatedAt
-  status              GymStatus         @default(PENDING)
+  status              GymRequestStatus  @default(PENDING)
   name                String
   description         String
   address             String
   phone               String
   email               String
+  equipmentDescription String
+  exerciseTypes       String
 
   ownerId             Int
   owner               User              @relation(fields: [ownerId], references: [id])
@@ -180,6 +176,8 @@ model GymRequest {
   address             String
   phone               String
   email               String
+  equipmentDescription String
+  exerciseTypes       String
 
   ownerId             Int
   owner               User              @relation(fields: [ownerId], references: [id])
