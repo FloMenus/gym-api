@@ -1,6 +1,6 @@
 import { Request, Response, Router } from "express";
 import { GymService } from "../services";
-import { authAdmin } from "../utils/auth";
+import { authAdmin, authOwnerOrAdmin } from "../utils/auth";
 import { gymSchema } from "../schemas";
 
 export class GymController {
@@ -57,14 +57,23 @@ export class GymController {
         const result = gymSchema.safeParse(req.body);
 
         if (isNaN(id)) {
-            return res.status(400);
+            return res.status(400).json({ message: "ID invalide." });
         }
 
         if (!result.success) {
             return res.status(400).json({ errors: result.error });
         }
 
-        const response = await this.service.update(id, result.data);
+        if (!req.user) {
+            return res.status(401).json({ message: "Vous n'êtes pas connecté." });
+        }
+
+        const response = await this.service.update(
+            id, 
+            result.data, 
+            req.user.userId, 
+            req.user.role
+        );
 
         if (response.success) {
             return res.json(response);
@@ -77,10 +86,18 @@ export class GymController {
         const id = Number(req.params.id);
 
         if (isNaN(id)) {
-            return res.status(400);
+            return res.status(400).json({ message: "ID invalide." });
         }
 
-        const response = await this.service.delete(id);
+        if (!req.user) {
+            return res.status(401).json({ message: "Vous n'êtes pas connecté." });
+        }
+
+        const response = await this.service.delete(
+            id,
+            req.user.userId,
+            req.user.role
+        );
 
         if (response.success) {
             return res.json(response);
@@ -94,8 +111,8 @@ export class GymController {
         router.get("/", authAdmin, this.getAll.bind(this));
         router.get("/:id", this.get.bind(this));
         router.post("/", this.create.bind(this));
-        router.put("/:id", this.update.bind(this));
-        router.delete("/:id", this.delete.bind(this));
+        router.put("/:id", authOwnerOrAdmin, this.update.bind(this));
+        router.delete("/:id", authOwnerOrAdmin, this.delete.bind(this));
         return router;
     }
 }

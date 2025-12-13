@@ -58,15 +58,63 @@ export class GymService {
         };
     }
 
-    async update(id: number, data: gymType) {
-        const isExstingOwner = await prisma.user.findUnique({
-            where: { id: data.ownerId },
+    async update(id: number, data: gymType, userId?: number, userRole?: string) {
+        const existingGym = await prisma.gym.findUnique({
+            where: { id },
         });
-        if (!isExstingOwner) {
+
+        if (!existingGym) {
             return {
                 success: false,
-                message: "Propriétaire introuvable.",
+                message: "Salle de sport introuvable.",
             };
+        }
+
+        if (userRole === "OWNER" && userId) {
+            if (existingGym.ownerId !== userId) {
+                return {
+                    success: false,
+                    message: "Vous n'êtes pas propriétaire de cette salle de sport.",
+                };
+            }
+
+            if (existingGym.status !== "APPROVED") {
+                return {
+                    success: false,
+                    message: "Vous ne pouvez modifier que les salles de sport approuvées.",
+                };
+            }
+
+            const { status, ownerId, ...ownerAllowedData } = data;
+            const updateData = {
+                ...ownerAllowedData,
+                status: existingGym.status,
+                ownerId: existingGym.ownerId, 
+            };
+
+            const gym = await prisma.gym.update({
+                where: { id },
+                data: updateData,
+            });
+
+            return {
+                success: true,
+                message: "Salle de sport modifiée.",
+                gym,
+            };
+        }
+
+
+        if (data.ownerId !== existingGym.ownerId) {
+            const isExistingOwner = await prisma.user.findUnique({
+                where: { id: data.ownerId },
+            });
+            if (!isExistingOwner) {
+                return {
+                    success: false,
+                    message: "Propriétaire introuvable.",
+                };
+            }
         }
 
         const gym = await prisma.gym.update({
@@ -81,7 +129,7 @@ export class GymService {
         };
     }
 
-    async delete(id: number) {
+    async delete(id: number, userId?: number, userRole?: string) {
         const gym = await prisma.gym.findUnique({
             where: { id },
         });
@@ -90,6 +138,22 @@ export class GymService {
                 success: false,
                 message: "Salle de sport introuvable.",
             };
+        }
+
+        if (userRole === "OWNER" && userId) {
+            if (gym.ownerId !== userId) {
+                return {
+                    success: false,
+                    message: "Vous n'êtes pas propriétaire de cette salle de sport.",
+                };
+            }
+
+            if (gym.status !== "APPROVED") {
+                return {
+                    success: false,
+                    message: "Désoler vous ne pouvez supprimer que les salles de sport approuvées :(",
+                };
+            }
         }
 
         await prisma.gym.delete({

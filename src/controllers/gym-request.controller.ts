@@ -1,6 +1,6 @@
 import { Request, Response, Router } from "express";
 import { GymRequestService } from "../services";
-import { authOwner, authAdmin } from "../utils/auth";
+import { authOwnerOrAdmin, authAdmin } from "../utils/auth";
 import { gymRequestDecisionSchema, gymRequestSchema } from "../schemas";
 
 export class GymRequestController {
@@ -84,7 +84,7 @@ export class GymRequestController {
 
   buildRouter(): Router {
     const router = Router();
-    router.post("/", authOwner, this.create.bind(this));
+    router.post("/", authOwnerOrAdmin, this.create.bind(this));
     router.get("/", authAdmin, this.getAll.bind(this));
     router.get("/:id", authAdmin, this.get.bind(this));
     router.post("/submit-decision/:id", authAdmin, this.submitDecision.bind(this));

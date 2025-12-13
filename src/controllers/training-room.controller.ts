@@ -1,6 +1,6 @@
 import { Request, Response, Router } from "express";
 import { TrainingRoomService } from "../services";
-import { authOwner, authAdmin, authOwnerOrAdmin } from "../utils/auth";
+import { authOwnerOrAdmin } from "../utils/auth";
 import { trainingRoomSchema, trainingRoomUpdateSchema } from "../schemas";
 
 export class TrainingRoomController {

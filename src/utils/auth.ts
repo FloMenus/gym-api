@@ -25,50 +25,21 @@ const getAuthPayload = (req: Request): jwt.JwtPayload | null => {
   return verifyAuth(token);
 };
 
-export const auth = (req: Request, res: Response, next: NextFunction) => {
-  const payload = getAuthPayload(req);
-  if (!payload)
-    return res.status(401).json({ message: "Vous n'êtes pas connecté." });
+export const requireRole = (...allowedRoles: UserRole[]) => {
+  return (req: Request, res: Response, next: NextFunction) => {
+    const payload = getAuthPayload(req);
+    if (!payload)
+      return res.status(401).json({ message: "Vous n'êtes pas connecté." });
 
-  req.user = { userId: payload.userId, role: payload.role as UserRole };
-  next();
+    if (allowedRoles.length > 0 && !allowedRoles.includes(payload.role as UserRole)) {
+      return res.status(403).json({ message: "Vous n'avez pas les droits." });
+    }
+
+    req.user = { userId: payload.userId, role: payload.role as UserRole };
+    next();
+  };
 };
 
-export const authAdmin = (req: Request, res: Response, next: NextFunction) => {
-  const payload = getAuthPayload(req);
-  if (!payload)
-    return res.status(401).json({ message: "Vous n'êtes pas connecté." });
-
-  if (payload.role !== UserRole.ADMIN) {
-    return res.status(403).json({ message: "Vous n'avez pas les droits." });
-  }
-
-  req.user = { userId: payload.userId, role: payload.role as UserRole };
-  next();
-};
-
-export const authOwner = (req: Request, res: Response, next: NextFunction) => {
-  const payload = getAuthPayload(req);
-  if (!payload)
-    return res.status(401).json({ message: "Vous n'êtes pas connecté." });
-
-  if (payload.role !== UserRole.OWNER) {
-    return res.status(403).json({ message: "Vous n'êtes pas propriétaire de salle." });
-  }
-
-  req.user = { userId: payload.userId, role: payload.role as UserRole };
-  next();
-};
-
-export const authOwnerOrAdmin = (req: Request, res: Response, next: NextFunction) => {
-  const payload = getAuthPayload(req);
-  if (!payload)
-    return res.status(401).json({ message: "Vous n'êtes pas connecté." });
-
-  if (payload.role !== UserRole.OWNER && payload.role !== UserRole.ADMIN) {
-    return res.status(403).json({ message: "Vous n'avez pas les droits." });
-  }
-
-  req.user = { userId: payload.userId, role: payload.role as UserRole };
-  next();
-};
+export const auth = requireRole(); 
+export const authAdmin = requireRole(UserRole.ADMIN);
+export const authOwnerOrAdmin = requireRole(UserRole.OWNER, UserRole.ADMIN);
