@@ -21,7 +21,7 @@ export class EquipmentService {
         }
         
         const equipments = await prisma.equipment.findMany({
-            where: { gymId },
+            where: { trainingRoomId: gymId },
         });
 
         return {
@@ -49,13 +49,13 @@ export class EquipmentService {
     }
 
     async create(data: equipmentType) {
-        const isExistingGym = await prisma.gym.findUnique({
-            where: { id: data.gymId },
+        const isExistingTrainingRoom = await prisma.trainingRoom.findUnique({
+            where: { id: data.trainingRoomId },
         });
-        if (!isExistingGym) {
+        if (!isExistingTrainingRoom) {
             return {
                 success: false,
-                message: "Salle de sport introuvable.",
+                message: "Salle d'entrainement introuvable.",
             };
         }
 
@@ -71,13 +71,13 @@ export class EquipmentService {
     }
 
     async update(id: number, data: equipmentType) {
-        const isExistingGym = await prisma.gym.findUnique({
-            where: { id: data.gymId },
+        const isExistingTrainingRoom = await prisma.trainingRoom.findUnique({
+            where: { id: data.trainingRoomId },
         });
-        if (!isExistingGym) {
+        if (!isExistingTrainingRoom) {
             return {
                 success: false,
-                message: "Salle de sport introuvable.",
+                message: "Salle d'entrainement introuvable.",
             };
         }
 
