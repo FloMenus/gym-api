@@ -104,8 +104,8 @@ model Challenge {
   updatedAt           DateTime          @updatedAt
   title               String
   description         String?
-  duration            Int?
   difficulty          ChallengeDifficulty?
+  deadline            DateTime?
 
   creatorId           Int
   creator             User              @relation(fields: [creatorId], references: [id])
