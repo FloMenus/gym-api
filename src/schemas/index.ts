@@ -8,3 +8,4 @@ export * from "./gym-request.schema";
 export * from "./training-room.schema";
 export * from "./challenge.schema";
 export * from "./challenge-participation.schema";
+export * from "./badge.schema";

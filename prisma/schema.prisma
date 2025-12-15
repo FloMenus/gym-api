@@ -137,10 +137,16 @@ model TrainingSession {
   calories            Int?
   notes               String?
 
-  participationId     Int
-  participation       ChallengeParticipation @relation(fields: [participationId], references: [id])
+  participationId     Int?
+  participation       ChallengeParticipation? @relation(fields: [participationId], references: [id])
   userId              Int
   user                User              @relation(fields: [userId], references: [id])
+}
+
+enum BadgeType {
+  CALORIES
+  SESSIONS
+  CHALLENGES
 }
 
 model Badge {
@@ -149,7 +155,8 @@ model Badge {
   updatedAt           DateTime          @updatedAt
   name                String
   description         String?
-  rule                String? 
+  type                BadgeType
+  value               Int
 
   userBadges          UserBadge[]
 }
@@ -158,12 +165,14 @@ model UserBadge {
   id                  Int               @id @default(autoincrement())
   createdAt           DateTime          @default(now())
   updatedAt           DateTime          @updatedAt
-  userId              Int
-  badgeId             Int
   wonAt               DateTime          @default(now())
 
+  userId              Int
+  badgeId             Int
   user                User              @relation(fields: [userId], references: [id])
   badge               Badge             @relation(fields: [badgeId], references: [id])
+
+  @@unique([userId, badgeId])
 }
 
 model GymRequest {
