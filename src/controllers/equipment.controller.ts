@@ -1,9 +1,7 @@
-
 import { Request, Response, Router } from "express";
 import { EquipmentService } from "../services";
-import { authAdmin } from "../utils/auth";
+import { authOwnerOrAdmin } from "../utils/auth";
 import { equipmentSchema } from "../schemas";
-
 
 export class EquipmentController {
     service: EquipmentService;
@@ -16,7 +14,7 @@ export class EquipmentController {
         const id = Number(req.params.id);
 
         if (isNaN(id)) {
-            return res.status(400);
+            return res.status(400).json({ message: "ID invalide." });
         }
 
         const response = await this.service.getAllFromGym(id);
@@ -32,7 +30,7 @@ export class EquipmentController {
         const id = Number(req.params.id);
 
         if (isNaN(id)) {
-            return res.status(400);
+            return res.status(400).json({ message: "ID invalide." });
         }
 
         const response = await this.service.get(id);
@@ -51,7 +49,11 @@ export class EquipmentController {
             return res.status(400).json({ errors: result.error });
         }
 
-        const response = await this.service.create(result.data);
+        if (!req.user) {
+            return res.status(401).json({ message: "Vous n'êtes pas connecté." });
+        }
+
+        const response = await this.service.create(result.data, req.user.userId, req.user.role);
 
         if (response.success) {
             return res.json(response);
@@ -65,14 +67,18 @@ export class EquipmentController {
         const result = equipmentSchema.safeParse(req.body);
 
         if (isNaN(id)) {
-            return res.status(400);
+            return res.status(400).json({ message: "ID invalide." });
         }
 
         if (!result.success) {
             return res.status(400).json({ errors: result.error });
         }
 
-        const response = await this.service.update(id, result.data);
+        if (!req.user) {
+            return res.status(401).json({ message: "Vous n'êtes pas connecté." });
+        }
+
+        const response = await this.service.update(id, result.data, req.user.userId, req.user.role);
 
         if (response.success) {
             return res.json(response);
@@ -85,10 +91,14 @@ export class EquipmentController {
         const id = Number(req.params.id);
 
         if (isNaN(id)) {
-            return res.status(400);
+            return res.status(400).json({ message: "ID invalide." });
         }
 
-        const response = await this.service.delete(id);
+        if (!req.user) {
+            return res.status(401).json({ message: "Vous n'êtes pas connecté." });
+        }
+
+        const response = await this.service.delete(id, req.user.userId, req.user.role);
 
         if (response.success) {
             return res.json(response);
@@ -101,9 +111,9 @@ export class EquipmentController {
         const router = Router();
         router.get("/all-from-gym/:id", this.getAllFromGym.bind(this));
         router.get("/:id", this.get.bind(this));
-        router.post("/", authAdmin, this.create.bind(this));
-        router.put("/:id", authAdmin, this.update.bind(this));
-        router.delete("/:id", authAdmin, this.delete.bind(this));
+        router.post("/", authOwnerOrAdmin, this.create.bind(this));
+        router.put("/:id", authOwnerOrAdmin, this.update.bind(this));
+        router.delete("/:id", authOwnerOrAdmin, this.delete.bind(this));
         return router;
     }
 }

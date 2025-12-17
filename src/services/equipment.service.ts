@@ -10,19 +10,24 @@ export class EquipmentService {
     }
 
     async getAllFromGym(gymId: number) {
-        const isExistingGym = await prisma.gym.findUnique({
+        const gym = await prisma.gym.findUnique({
             where: { id: gymId },
+            include: {
+                trainingRooms: {
+                    include: {
+                        equipments: true,
+                    },
+                },
+            },
         });
-        if (!isExistingGym) {
+        if (!gym) {
             return {
                 success: false,
                 message: "Salle de sport introuvable.",
             };
         }
         
-        const equipments = await prisma.equipment.findMany({
-            where: { trainingRoomId: gymId },
-        });
+        const equipments = gym.trainingRooms.flatMap(tr => tr.equipments);
 
         return {
             success: true,
@@ -33,6 +38,13 @@ export class EquipmentService {
     async get(id: number) {
         const equipment = await prisma.equipment.findUnique({
             where: { id },
+            include: {
+                trainingRoom: {
+                    include: {
+                        gym: true,
+                    },
+                },
+            },
         });
 
         if (!equipment) {
@@ -48,19 +60,32 @@ export class EquipmentService {
         };
     }
 
-    async create(data: equipmentType) {
-        const isExistingTrainingRoom = await prisma.trainingRoom.findUnique({
+    async create(data: equipmentType, userId: number, userRole: string) {
+        const trainingRoom = await prisma.trainingRoom.findUnique({
             where: { id: data.trainingRoomId },
+            include: { gym: true },
         });
-        if (!isExistingTrainingRoom) {
+
+        if (!trainingRoom) {
             return {
                 success: false,
-                message: "Salle d'entrainement introuvable.",
+                message: "Salle d'entraînement introuvable.",
+            };
+        }
+
+        if (userRole === "OWNER" && trainingRoom.gym.ownerId !== userId) {
+            return {
+                success: false,
+                message: "Vous n'êtes pas propriétaire de cette salle de sport.",
             };
         }
 
         const equipment = await prisma.equipment.create({
-            data,
+            data: {
+                name: data.name,
+                quantity: data.quantity,
+                trainingRoomId: data.trainingRoomId,
+            },
         });
 
         return {
@@ -70,37 +95,86 @@ export class EquipmentService {
         };
     }
 
-    async update(id: number, data: equipmentType) {
-        const isExistingTrainingRoom = await prisma.trainingRoom.findUnique({
-            where: { id: data.trainingRoomId },
+    async update(id: number, data: equipmentType, userId: number, userRole: string) {
+        const equipment = await prisma.equipment.findUnique({
+            where: { id },
+            include: {
+                trainingRoom: {
+                    include: { gym: true },
+                },
+            },
         });
-        if (!isExistingTrainingRoom) {
+
+        if (!equipment) {
             return {
                 success: false,
-                message: "Salle d'entrainement introuvable.",
+                message: "Équipement introuvable.",
             };
         }
 
-        const equipment = await prisma.equipment.update({
+        if (userRole === "OWNER" && equipment.trainingRoom.gym.ownerId !== userId) {
+            return {
+                success: false,
+                message: "Vous n'êtes pas propriétaire de cette salle de sport.",
+            };
+        }
+
+        const trainingRoom = await prisma.trainingRoom.findUnique({
+            where: { id: data.trainingRoomId },
+            include: { gym: true },
+        });
+
+        if (!trainingRoom) {
+            return {
+                success: false,
+                message: "Salle d'entraînement introuvable.",
+            };
+        }
+
+        if (userRole === "OWNER" && trainingRoom.gym.ownerId !== userId) {
+            return {
+                success: false,
+                message: "Vous n'êtes pas propriétaire de cette salle de sport.",
+            };
+        }
+
+        const updatedEquipment = await prisma.equipment.update({
             where: { id },
-            data,
+            data: {
+                name: data.name,
+                quantity: data.quantity,
+                trainingRoomId: data.trainingRoomId,
+            },
         });
 
         return {
             success: true,
             message: "Équipement modifié.",
-            equipment,
+            equipment: updatedEquipment,
         };
     }
 
-    async delete(id: number) {
+    async delete(id: number, userId: number, userRole: string) {
         const equipment = await prisma.equipment.findUnique({
             where: { id },
+            include: {
+                trainingRoom: {
+                    include: { gym: true },
+                },
+            },
         });
+
         if (!equipment) {
             return {
                 success: false,
                 message: "Équipement introuvable.",
+            };
+        }
+
+        if (userRole === "OWNER" && equipment.trainingRoom.gym.ownerId !== userId) {
+            return {
+                success: false,
+                message: "Vous n'êtes pas propriétaire de cette salle de sport.",
             };
         }
 

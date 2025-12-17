@@ -1,6 +1,6 @@
 import { Request, Response, Router } from "express";
 import { ExerciseTypeService } from "../services";
-import { authAdmin } from "../utils/auth";
+import { auth, authAdmin } from "../utils/auth";
 import { exerciseTypeSchema } from "../schemas";
 
 export class ExerciseTypeController {
@@ -92,8 +92,8 @@ export class ExerciseTypeController {
 
   buildRouter(): Router {
     const router = Router();
-    router.get("/", authAdmin, this.getAll.bind(this));
-    router.get("/:id", authAdmin, this.get.bind(this));
+    router.get("/", auth, this.getAll.bind(this));
+    router.get("/:id", auth, this.get.bind(this));
     router.post("/", authAdmin, this.create.bind(this));
     router.put("/:id", authAdmin, this.update.bind(this));
     router.delete("/:id", authAdmin, this.delete.bind(this));

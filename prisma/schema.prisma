@@ -56,6 +56,7 @@ model Gym {
   ownerId             Int
   owner               User              @relation(fields: [ownerId], references: [id])
   trainingRooms       TrainingRoom[]
+  challenges          Challenge[]
 }
 
 model TrainingRoom {
@@ -81,6 +82,7 @@ model Equipment {
 
   trainingRoomId      Int
   trainingRoom        TrainingRoom      @relation(fields: [trainingRoomId], references: [id])
+  challenges          Challenge[]
 }
 
 model ExerciseType {
@@ -107,12 +109,17 @@ model Challenge {
   updatedAt           DateTime          @updatedAt
   title               String
   description         String?
+  challengeExercises  String
+  duration            Int?
   difficulty          ChallengeDifficulty?
   deadline            DateTime?
 
   creatorId           Int
   creator             User              @relation(fields: [creatorId], references: [id])
+  gymId               Int?
+  gym                 Gym?             @relation(fields: [gymId], references: [id])
   exerciseTypes       ExerciseType[]
+  equipments          Equipment[]
   participations      ChallengeParticipation[]
 }
 
