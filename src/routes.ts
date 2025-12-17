@@ -6,6 +6,7 @@ import {
   GymRequestController,
   EquipmentController,
   TrainingRoomController,
+  ChallengeController,
 } from "./controllers";
 const router = Router();
 
@@ -30,5 +31,8 @@ router.use("/gym-request", gymRequestController.buildRouter());
 
 const trainingRoomController = new TrainingRoomController();
 router.use("/training-room", trainingRoomController.buildRouter());
+
+const challengeController = new ChallengeController();
+router.use("/challenge", challengeController.buildRouter());
 
 export default router;
