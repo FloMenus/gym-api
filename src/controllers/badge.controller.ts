@@ -42,7 +42,6 @@ export class BadgeController {
     }
 
     const userId = req.user.userId;
-    console.log(userId);
 
     const response = await this.service.getByUser(userId);
 
