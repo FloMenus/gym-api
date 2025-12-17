@@ -7,3 +7,4 @@ export * from "./training-room.service";
 export * from "./challenge.service";
 export * from "./challenge-participation.service";
 export * from "./badge.service";
+export * from "./relation.service";

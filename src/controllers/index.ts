@@ -7,3 +7,4 @@ export * from "./training-room.controller";
 export * from "./challenge.controller";
 export * from "./challenge-participation.controller";
 export * from "./badge.controller";
+export * from "./relation.controller";
