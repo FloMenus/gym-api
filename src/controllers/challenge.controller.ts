@@ -1,6 +1,5 @@
 import { Request, Response, Router } from "express";
 import { ChallengeService } from "../services";
-import { authAdmin } from "../utils/auth";
 import { challengeSchema } from "../schemas";
 
 export class ChallengeController {

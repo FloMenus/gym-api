@@ -8,6 +8,7 @@ import {
   TrainingRoomController,
   ChallengeController,
   ChallengeParticipationController,
+  BadgeController,
 } from "./controllers";
 const router = Router();
 
@@ -37,6 +38,12 @@ const challengeController = new ChallengeController();
 router.use("/challenge", challengeController.buildRouter());
 
 const challengeParticipationController = new ChallengeParticipationController();
-router.use("/challenge-participation", challengeParticipationController.buildRouter());
+router.use(
+  "/challenge-participation",
+  challengeParticipationController.buildRouter()
+);
+
+const badgeController = new BadgeController();
+router.use("/badge", badgeController.buildRouter());
 
 export default router;

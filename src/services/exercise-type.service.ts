@@ -1,7 +1,6 @@
 import { PrismaClient } from "@prisma/client";
 import { prisma } from "../utils/prisma";
 import { exerciseTypeType } from "../schemas";
-import { success } from "zod";
 
 export class ExerciseTypeService {
   db: PrismaClient;

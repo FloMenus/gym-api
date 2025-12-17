@@ -1,5 +1,4 @@
 import z from "zod";
-import { id } from "zod/v4/locales";
 
 export const trainingRoomSchema = z.object({
     name: z.string("Le nom de la salle d'entraînement est obligatoire."),
