@@ -7,8 +7,217 @@ datasource db {
   url      = env("DATABASE_URL")
 }
 
-model TestConnection {
-  id        Int      @id @default(autoincrement())
-  message   String
-  createdAt DateTime @default(now())
+enum UserRole {
+  USER
+  OWNER
+  ADMIN
+}
+
+model User {
+  id                  Int               @id @default(autoincrement())
+  createdAt           DateTime          @default(now())
+  updatedAt           DateTime          @updatedAt
+  isActive            Boolean           @default(true)
+  email               String            @unique
+  password            String 
+  name                String
+  role                UserRole          @default(USER)
+
+  ownedGyms           Gym[]
+  challenges          Challenge[]
+  participations      ChallengeParticipation[]
+  trainingSessions    TrainingSession[]
+  userBadges          UserBadge[]
+  gymRequests         GymRequest[]
+
+  sentFriendRequests      FriendRequest[] @relation("SentFriendRequests")
+  receivedFriendRequests  FriendRequest[] @relation("ReceivedFriendRequests")
+}
+
+enum GymRequestStatus {
+  PENDING
+  APPROVED
+  REJECTED
+}
+
+model Gym {
+  id                  Int               @id @default(autoincrement())
+  createdAt           DateTime          @default(now())
+  updatedAt           DateTime          @updatedAt
+  status              GymRequestStatus  @default(PENDING)
+  name                String
+  description         String
+  address             String
+  phone               String
+  email               String
+  equipmentDescription String
+  exerciseTypes       String
+
+  ownerId             Int
+  owner               User              @relation(fields: [ownerId], references: [id])
+  trainingRooms       TrainingRoom[]
+  challenges          Challenge[]
+}
+
+model TrainingRoom {
+  id                  Int               @id @default(autoincrement())
+  createdAt           DateTime          @default(now())
+  updatedAt           DateTime          @updatedAt
+  name                String
+  capacity            Int
+
+  gymId               Int
+  gym                 Gym               @relation(fields: [gymId], references: [id])
+  exerciseTypeIds     Int[]
+  exerciseTypes       ExerciseType[]    @relation("TrainingRoomExerciseTypes")
+  equipments          Equipment[]
+}
+
+model Equipment {
+  id                  Int               @id @default(autoincrement())
+  createdAt           DateTime          @default(now())
+  updatedAt           DateTime          @updatedAt
+  name                String
+  quantity            Int?
+
+  trainingRoomId      Int
+  trainingRoom        TrainingRoom      @relation(fields: [trainingRoomId], references: [id])
+  challenges          Challenge[]
+}
+
+model ExerciseType {
+  id                  Int               @id @default(autoincrement())
+  createdAt           DateTime          @default(now())
+  updatedAt           DateTime          @updatedAt
+  name                String
+  description         String?
+  targetedMuscles     String[]
+
+  challenges          Challenge[]
+  trainingRooms       TrainingRoom[]    @relation("TrainingRoomExerciseTypes")
+}
+
+enum ChallengeDifficulty {
+  EASY
+  MEDIUM
+  HARD
+}
+
+model Challenge {
+  id                  Int               @id @default(autoincrement())
+  createdAt           DateTime          @default(now())
+  updatedAt           DateTime          @updatedAt
+  title               String
+  description         String?
+  challengeExercises  String
+  duration            Int?
+  difficulty          ChallengeDifficulty?
+  deadline            DateTime?
+
+  creatorId           Int
+  creator             User              @relation(fields: [creatorId], references: [id])
+  gymId               Int?
+  gym                 Gym?             @relation(fields: [gymId], references: [id])
+  exerciseTypes       ExerciseType[]
+  equipments          Equipment[]
+  participations      ChallengeParticipation[]
+}
+
+model ChallengeParticipation {
+  id                  Int               @id @default(autoincrement())
+  createdAt           DateTime          @default(now())
+  updatedAt           DateTime          @updatedAt
+  startedAt           DateTime          @default(now())
+  completedAt         DateTime?
+  caloriesBurned      Int?  
+  progress            Int? 
+
+  userId              Int
+  user                User              @relation(fields: [userId], references: [id])
+  challengeId         Int
+  challenge           Challenge         @relation(fields: [challengeId], references: [id])
+  sessions            TrainingSession[]
+}
+
+model TrainingSession {
+  id                  Int               @id @default(autoincrement())
+  createdAt           DateTime          @default(now())
+  updatedAt           DateTime          @updatedAt
+  date                DateTime          @default(now())
+  calories            Int?
+  notes               String?
+
+  participationId     Int?
+  participation       ChallengeParticipation? @relation(fields: [participationId], references: [id])
+  userId              Int
+  user                User              @relation(fields: [userId], references: [id])
+}
+
+enum BadgeType {
+  CALORIES
+  SESSIONS
+  CHALLENGES
+}
+
+model Badge {
+  id                  Int               @id @default(autoincrement())
+  createdAt           DateTime          @default(now())
+  updatedAt           DateTime          @updatedAt
+  name                String
+  description         String?
+  type                BadgeType
+  value               Int
+
+  userBadges          UserBadge[]
+}
+
+model UserBadge {
+  id                  Int               @id @default(autoincrement())
+  createdAt           DateTime          @default(now())
+  updatedAt           DateTime          @updatedAt
+  wonAt               DateTime          @default(now())
+
+  userId              Int
+  badgeId             Int
+  user                User              @relation(fields: [userId], references: [id])
+  badge               Badge             @relation(fields: [badgeId], references: [id])
+
+  @@unique([userId, badgeId])
+}
+
+model GymRequest {
+  id                  Int               @id @default(autoincrement())
+  createdAt           DateTime          @default(now())
+  updatedAt           DateTime          @updatedAt
+  status              GymRequestStatus  @default(PENDING)
+  name                String
+  description         String
+  address             String
+  phone               String
+  email               String
+  equipmentDescription String
+  exerciseTypes       String
+
+  ownerId             Int
+  owner               User              @relation(fields: [ownerId], references: [id])
+}
+
+enum FriendRequestStatus {
+  PENDING
+  ACCEPT
+}
+
+model FriendRequest {
+  id            Int                  @id @default(autoincrement())
+  createdAt     DateTime             @default(now())
+  updatedAt     DateTime             @updatedAt
+  status        FriendRequestStatus  @default(PENDING)
+
+  senderId      Int
+  receiverId    Int
+
+  sender        User                 @relation("SentFriendRequests", fields: [senderId], references: [id])
+  receiver      User                 @relation("ReceivedFriendRequests", fields: [receiverId], references: [id])
+
+  @@unique([senderId, receiverId])
 }
