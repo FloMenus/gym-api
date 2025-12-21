@@ -14,7 +14,7 @@ export class ChallengeController {
     const response = await this.service.getAll();
 
     if (response.success) {
-      return res.json(response);
+      return res.status(200).json(response);
     } else {
       return res.status(400).json(response);
     }
@@ -30,7 +30,7 @@ export class ChallengeController {
     const response = await this.service.get(id);
 
     if (response.success) {
-      return res.json(response);
+      return res.status(200).json(response);
     } else {
       return res.status(400).json(response);
     }
@@ -54,7 +54,7 @@ export class ChallengeController {
     );
 
     if (response.success) {
-      return res.json(response);
+      return res.status(201).json(response);
     } else {
       return res.status(400).json(response);
     }
@@ -84,7 +84,7 @@ export class ChallengeController {
     );
 
     if (response.success) {
-      return res.json(response);
+      return res.status(200).json(response);
     } else {
       return res.status(400).json(response);
     }

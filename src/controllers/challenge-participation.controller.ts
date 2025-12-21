@@ -18,7 +18,7 @@ export class ChallengeParticipationController {
         const response = await this.service.getAll();
 
         if (response.success) {
-            return res.json(response);
+            return res.status(200).json(response);
         } else {
             return res.status(400).json(response);
         }
@@ -34,7 +34,7 @@ export class ChallengeParticipationController {
         const response = await this.service.getByUserId(userId);
 
         if (response.success) {
-            return res.json(response);
+            return res.status(200).json(response);
         } else {
             return res.status(400).json(response);
         }
@@ -50,7 +50,7 @@ export class ChallengeParticipationController {
         const response = await this.service.getByChallengeId(challengeId);
 
         if (response.success) {
-            return res.json(response);
+            return res.status(200).json(response);
         } else {
             return res.status(400).json(response);
         }
@@ -66,7 +66,7 @@ export class ChallengeParticipationController {
         const response = await this.service.get(id);
 
         if (response.success) {
-            return res.json(response);
+            return res.status(200).json(response);
         } else {
             return res.status(400).json(response);
         }
@@ -90,7 +90,7 @@ export class ChallengeParticipationController {
         const response = await this.service.create(result.data);
 
         if (response.success) {
-            return res.json(response);
+            return res.status(201).json(response);
         } else {
             return res.status(400).json(response);
         }
@@ -116,7 +116,7 @@ export class ChallengeParticipationController {
         const response = await this.service.update(id, result.data);
 
         if (response.success) {
-            return res.json(response);
+            return res.status(200).json(response);
         } else {
             return res.status(400).json(response);
         }
@@ -136,7 +136,7 @@ export class ChallengeParticipationController {
         const response = await this.service.complete(result.data.participationId, req.user.userId);
 
         if (response.success) {
-            return res.json(response);
+            return res.status(200).json(response);
         } else {
             return res.status(400).json(response);
         }

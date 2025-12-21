@@ -6,8 +6,8 @@ export const challengeParticipationSchema = z.object({
 });
 
 export const challengeParticipationUpdateSchema = z.object({
-    progress: z.number().min(0).max(100).optional(),
-    caloriesBurned: z.number().min(0).optional(),
+    progress: z.number().min(0).max(100),
+    caloriesBurned: z.number().min(0),
     completedAt: z.coerce.date().optional(),
 });
 

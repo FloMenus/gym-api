@@ -14,7 +14,7 @@ export class TrainingRoomController {
         const response = await this.service.getAll();
 
         if (response.success) {
-            return res.json(response);
+            return res.status(200).json(response);
         } else {
             return res.status(400).json(response);
         }
@@ -30,7 +30,7 @@ export class TrainingRoomController {
         const response = await this.service.getByGymId(gymId);
 
         if (response.success) {
-            return res.json(response);
+            return res.status(200).json(response);
         } else {
             return res.status(400).json(response);
         }
@@ -46,7 +46,7 @@ export class TrainingRoomController {
         const response = await this.service.getByExerciseTypeId(exerciseTypeId);
 
         if (response.success) {
-            return res.json(response);
+            return res.status(200).json(response);
         } else {
             return res.status(400).json(response);
         }
@@ -71,7 +71,7 @@ export class TrainingRoomController {
         const response = await this.service.create(result.data);
 
         if (response.success) {
-            return res.json(response);
+            return res.status(201).json(response);
         } else {
             return res.status(400).json(response);
         }
@@ -91,7 +91,7 @@ export class TrainingRoomController {
         const response = await this.service.update(result.data);
 
         if (response.success) {
-            return res.json(response);
+            return res.status(200).json(response);
         } else {
             return res.status(400).json(response);
         }

@@ -20,7 +20,7 @@ export class RelationController {
     const response = await this.service.getRelation(userId);
 
     if (response.success) {
-      return res.json(response);
+      return res.status(200).json(response);
     } else {
       return res.status(400).json(response);
     }
@@ -36,7 +36,7 @@ export class RelationController {
     const response = await this.service.getAcceptRelation(userId);
 
     if (response.success) {
-      return res.json(response);
+      return res.status(200).json(response);
     } else {
       return res.status(400).json(response);
     }
@@ -52,7 +52,7 @@ export class RelationController {
     const response = await this.service.getPendingRelation(userId);
 
     if (response.success) {
-      return res.json(response);
+      return res.status(200).json(response);
     } else {
       return res.status(400).json(response);
     }
@@ -74,7 +74,7 @@ export class RelationController {
     const response = await this.service.send(userId, result.data);
 
     if (response.success) {
-      return res.json(response);
+      return res.status(200).json(response);
     } else {
       return res.status(400).json(response);
     }
@@ -96,7 +96,7 @@ export class RelationController {
     const response = await this.service.edit(userId, result.data);
 
     if (response.success) {
-      return res.json(response);
+      return res.status(200).json(response);
     } else {
       return res.status(400).json(response);
     }
@@ -118,7 +118,7 @@ export class RelationController {
     const response = await this.service.delete(userId, result.data);
 
     if (response.success) {
-      return res.json(response);
+      return res.status(200).json(response);
     } else {
       return res.status(400).json(response);
     }
