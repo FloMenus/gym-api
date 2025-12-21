@@ -1,6 +1,6 @@
 import { Request, Response, Router } from "express";
 import { ExerciseTypeService } from "../services";
-import { auth, authAdmin } from "../utils/auth";
+import { auth, authAdmin, authOwnerOrAdmin } from "../utils/auth";
 import { exerciseTypeSchema } from "../schemas";
 
 export class ExerciseTypeController {
@@ -14,7 +14,7 @@ export class ExerciseTypeController {
     const response = await this.service.getAll();
 
     if (response.success) {
-      return res.json(response);
+      return res.status(200).json(response);
     } else {
       return res.status(400).json(response);
     }
@@ -30,7 +30,7 @@ export class ExerciseTypeController {
     const response = await this.service.get(id);
 
     if (response.success) {
-      return res.json(response);
+      return res.status(200).json(response);
     } else {
       return res.status(400).json(response);
     }
@@ -47,7 +47,7 @@ export class ExerciseTypeController {
     const response = await this.service.create(result.data);
 
     if (response.success) {
-      return res.json(response);
+      return res.status(201).json(response);
     } else {
       return res.status(400).json(response);
     }
@@ -68,7 +68,7 @@ export class ExerciseTypeController {
     const response = await this.service.update(id, result.data);
 
     if (response.success) {
-      return res.json(response);
+      return res.status(200).json(response);
     } else {
       return res.status(400).json(response);
     }
@@ -84,7 +84,7 @@ export class ExerciseTypeController {
     const response = await this.service.delete(id);
 
     if (response.success) {
-      return res.json(response);
+      return res.status(200).json(response);
     } else {
       return res.status(400).json(response);
     }
@@ -94,7 +94,7 @@ export class ExerciseTypeController {
     const router = Router();
     router.get("/", auth, this.getAll.bind(this));
     router.get("/:id", auth, this.get.bind(this));
-    router.post("/", authAdmin, this.create.bind(this));
+    router.post("/", authOwnerOrAdmin, this.create.bind(this));
     router.put("/:id", authAdmin, this.update.bind(this));
     router.delete("/:id", authAdmin, this.delete.bind(this));
     return router;

@@ -20,7 +20,7 @@ export class EquipmentController {
         const response = await this.service.getAllFromGym(id);
 
         if (response.success) {
-            return res.json(response);
+            return res.status(200).json(response);
         } else {
             return res.status(400).json(response);
         }
@@ -36,7 +36,7 @@ export class EquipmentController {
         const response = await this.service.get(id);
 
         if (response.success) {
-            return res.json(response);
+            return res.status(200).json(response);
         } else {
             return res.status(400).json(response);
         }
@@ -56,7 +56,7 @@ export class EquipmentController {
         const response = await this.service.create(result.data, req.user.userId, req.user.role);
 
         if (response.success) {
-            return res.json(response);
+            return res.status(201).json(response);
         } else {
             return res.status(400).json(response);
         }
@@ -81,7 +81,7 @@ export class EquipmentController {
         const response = await this.service.update(id, result.data, req.user.userId, req.user.role);
 
         if (response.success) {
-            return res.json(response);
+            return res.status(200).json(response);
         } else {
             return res.status(400).json(response);
         }
@@ -101,7 +101,7 @@ export class EquipmentController {
         const response = await this.service.delete(id, req.user.userId, req.user.role);
 
         if (response.success) {
-            return res.json(response);
+            return res.status(200).json(response);
         } else {
             return res.status(400).json(response);
         }

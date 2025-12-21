@@ -94,20 +94,16 @@ export class ChallengeService {
   }
 
   async create(data: challengeType, userId: number, userRole: string) {
-    const existingExerciseTypes = await prisma.exerciseType.findMany({
-      where: { name: { in: data.exerciseTypeNames } },
+    const exerciseTypeCount = await prisma.exerciseType.count({
+      where: { id: { in: data.exerciseTypeIds } },
     });
 
-    if (existingExerciseTypes.length !== data.exerciseTypeNames.length) {
-      const existingNames = existingExerciseTypes.map(et => et.name);
-      const missingNames = data.exerciseTypeNames.filter((name: string) => !existingNames.includes(name));
+    if (exerciseTypeCount !== data.exerciseTypeIds.length) {
       return {
         success: false,
-        message: `Un ou plusieurs types d'exercices sont introuvables. Noms introuvables: ${missingNames.join(", ")}.`,
+        message: `Un ou plusieurs types d'exercices sont introuvables.`,
       };
     }
-
-    const exerciseTypeIds = existingExerciseTypes.map(et => et.id);
 
     if (data.gymId) {
       const gym = await prisma.gym.findUnique({
@@ -137,28 +133,27 @@ export class ChallengeService {
         }
       }
 
-      if (data.equipmentNames && data.equipmentNames.length > 0) {
+      if (data.equipmentIds && data.equipmentIds.length > 0) {
         const trainingRooms = await prisma.trainingRoom.findMany({
           where: { gymId: data.gymId },
           include: {
             equipments: {
               select: {
                 id: true,
-                name: true,
               },
             },
           },
         });
 
         const availableEquipments = trainingRooms.flatMap(tr => tr.equipments);
-        const availableEquipmentNames = availableEquipments.map(eq => eq.name);
+        const availableEquipmentIds = availableEquipments.map(eq => eq.id);
 
-        const missingEquipmentNames = data.equipmentNames.filter((name: string) => !availableEquipmentNames.includes(name));
+        const missingEquipmentIds = data.equipmentIds.filter((id: number) => !availableEquipmentIds.includes(id));
 
-        if (missingEquipmentNames.length > 0) {
+        if (missingEquipmentIds.length > 0) {
           return {
             success: false,
-            message: `Un ou plusieurs équipements ne sont pas disponibles dans cette salle de sport. Noms introuvables: ${missingEquipmentNames.join(", ")}.`,
+            message: `Un ou plusieurs équipements ne sont pas disponibles dans cette salle de sport. IDs introuvables: ${missingEquipmentIds.join(", ")}.`,
           };
         }
       }
@@ -177,15 +172,16 @@ export class ChallengeService {
         description: data.description,
         challengeExercises: data.challengeExercises,
         duration: data.duration,
+        deadline: data.deadline,
         difficulty: data.difficulty,
         creatorId: userId,
         gymId: data.gymId || null,
         exerciseTypes: {
-          connect: exerciseTypeIds.map((id: number) => ({ id })),
+          connect: data.exerciseTypeIds.map((id: number) => ({ id })),
         },
-        equipments: data.equipmentNames && data.gymId
+        equipments: data.equipmentIds && data.gymId
           ? {
-              connect: await this.getEquipmentIdsByNames(data.equipmentNames, data.gymId),
+              connect: data.equipmentIds.map((id: number) => ({ id })),
             }
           : undefined,
       },
@@ -226,20 +222,7 @@ export class ChallengeService {
     };
   }
 
-  private async getEquipmentIdsByNames(equipmentNames: string[], gymId: number) {
-    const trainingRooms = await prisma.trainingRoom.findMany({
-      where: { gymId },
-      include: {
-        equipments: {
-          where: { name: { in: equipmentNames } },
-          select: { id: true },
-        },
-      },
-    });
 
-    const equipmentIds = trainingRooms.flatMap(tr => tr.equipments.map(eq => ({ id: eq.id })));
-    return equipmentIds;
-  }
 
   async update(id: number, data: challengeType, userId: number, userRole: string) {
     const existingChallenge = await prisma.challenge.findUnique({
@@ -257,15 +240,15 @@ export class ChallengeService {
     }
 
     const existingExerciseTypes = await prisma.exerciseType.findMany({
-      where: { name: { in: data.exerciseTypeNames } },
+      where: { id: { in: data.exerciseTypeIds } },
     });
 
-    if (existingExerciseTypes.length !== data.exerciseTypeNames.length) {
-      const existingNames = existingExerciseTypes.map(et => et.name);
-      const missingNames = data.exerciseTypeNames.filter((name: string) => !existingNames.includes(name));
+    if (existingExerciseTypes.length !== data.exerciseTypeIds.length) {
+      const existingIds = existingExerciseTypes.map(et => et.id);
+      const missingIds = data.exerciseTypeIds.filter((id: number) => !existingIds.includes(id));
       return {
         success: false,
-        message: `Un ou plusieurs types d'exercices sont introuvables. Noms introuvables: ${missingNames.join(", ")}.`,
+        message: `Un ou plusieurs types d'exercices sont introuvables. IDs introuvables: ${missingIds.join(", ")}.`,
       };
     }
 
@@ -306,28 +289,27 @@ export class ChallengeService {
         }
       }
 
-      if (data.equipmentNames && data.equipmentNames.length > 0) {
+      if (data.equipmentIds && data.equipmentIds.length > 0) {
         const trainingRooms = await prisma.trainingRoom.findMany({
           where: { gymId: data.gymId },
           include: {
             equipments: {
               select: {
                 id: true,
-                name: true,
               },
             },
           },
         });
 
         const availableEquipments = trainingRooms.flatMap(tr => tr.equipments);
-        const availableEquipmentNames = availableEquipments.map(eq => eq.name);
+        const availableEquipmentIds = availableEquipments.map(eq => eq.id);
 
-        const missingEquipmentNames = data.equipmentNames.filter((name: string) => !availableEquipmentNames.includes(name));
+        const missingEquipmentIds = data.equipmentIds.filter((id: number) => !availableEquipmentIds.includes(id));
 
-        if (missingEquipmentNames.length > 0) {
+        if (missingEquipmentIds.length > 0) {
           return {
             success: false,
-            message: `Un ou plusieurs équipements ne sont pas disponibles dans cette salle de sport. Noms introuvables: ${missingEquipmentNames.join(", ")}.`,
+            message: `Un ou plusieurs équipements ne sont pas disponibles dans cette salle de sport. IDs introuvables: ${missingEquipmentIds.join(", ")}.`,
           };
         }
       }
@@ -350,11 +332,11 @@ export class ChallengeService {
         difficulty: data.difficulty,
         gymId: data.gymId || null,
         exerciseTypes: {
-          set: exerciseTypeIds.map((id: number) => ({ id })),
+          set: data.exerciseTypeIds.map((id: number) => ({ id })),
         },
-        equipments: data.equipmentNames && data.gymId
+        equipments: data.equipmentIds && data.gymId
           ? {
-              set: await this.getEquipmentIdsByNames(data.equipmentNames, data.gymId),
+              set: data.equipmentIds.map((id: number) => ({ id })),
             }
           : undefined,
       },
