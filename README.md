@@ -86,6 +86,14 @@ cp .env.example .env
 docker compose up --build
 ```
 
+**Créer un premier admin**
+```bash
+docker exec -it gym-api-app-1 /bin/bash
+```
+```bash
+npm run make-admin -- admin@example.com MotDePasseSécurisé "Admin"
+```
+
 ## Utilisation avec Postman
 
 Le fichier à la racine du projet `postman.json`, permet de facilement importer une collection et d'utiliser les principales fonctionnalités de l'API.
